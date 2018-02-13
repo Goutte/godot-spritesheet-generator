@@ -2,7 +2,7 @@ tool
 extends Node
 
 # Generated files will be created in this directory. Leave empty for Desktop.
-export(String, DIR, GLOBAL) var output_path = ""
+export(String, DIR, GLOBAL) var output_dir = ""
 # Try not to put spaces or exotic characters in here. Please? It'll melt.
 export var file_prefix = "mY_pREciOUs"
 # We try different strategies for transparency
@@ -59,7 +59,7 @@ func capture_image():
 	var image = get_viewport().get_texture().get_data()
 	image.flip_y()
 	image.save_png("%s%s_capture_%03d.png" % [
-		__get_output_path(), file_prefix, __capture_index
+		__get_output_dir(), file_prefix, __capture_index
 	])
 	__capture_index += 1
 
@@ -72,7 +72,7 @@ func generate_spritesheet():
 	var output = []
 	var file = 'addons/goutte.spritesheet.generator/magic.sh'
 	var options = [
-		file, __get_output_path(), file_prefix,
+		file, __get_output_dir(), file_prefix,
 		transparent_color_1.r8, transparent_color_1.g8, transparent_color_1.b8,
 		transparent_color_2.r8, transparent_color_2.g8, transparent_color_2.b8
 	]
@@ -118,6 +118,7 @@ func _process(delta):
 
 	if elapsed > __record_duration:
 		__record_in_progress = false
+		__record_started_at = null
 		generate_spritesheet()
 
 
@@ -126,18 +127,18 @@ func _process(delta):
 func __get_path_separator():
 	return '/'  # sorry
 
-func __get_output_path():
-	var _output_path = output_path
+func __get_output_dir():
+	var _output_dir = output_dir
 	
-	if _output_path == "":
-		_output_path = OS.get_system_dir(OS.SYSTEM_DIR_DESKTOP)
+	if _output_dir == "":
+		_output_dir = OS.get_system_dir(OS.SYSTEM_DIR_DESKTOP)
 	
-	if not _output_path.is_abs_path():
-		printerr("The output path MUST be absolute. Got '%s'." % _output_path)
+	if not _output_dir.is_abs_path():
+		printerr("The output path MUST be absolute. Got '%s'." % _output_dir)
 		assert not "really friendly, this. How to make it better?"
 	
-	if _output_path.begins_with("res://"):
-		printerr("Resource paths like '%s' are not supported." % _output_path)
+	if _output_dir.begins_with("res://"):
+		printerr("Resource paths like '%s' are not supported." % _output_dir)
 		assert not "really friendly, this. How to make it better?"
 
 	# List of nopes, trying to get abspath(res://) when in debug mode
@@ -149,9 +150,9 @@ func __get_output_path():
 #	prints("SysDir", system_dir)
 	
 	var path_sep = __get_path_separator()
-	if _output_path[-1] != path_sep:
-		_output_path += path_sep
-	return _output_path
+	if _output_dir[-1] != path_sep:
+		_output_dir += path_sep
+	return _output_dir
 
 
 ### TOOLSHED ###################################################################
@@ -171,13 +172,13 @@ func join(array, glue=', '):
 #	__test()
 
 func __test():
-	output_path = "/home/oryx/code/godot/my_project"
-	prints('A:', __get_output_path())
-	assert __get_output_path() == "/home/oryx/code/godot/my_project/"
-	output_path = ""
-	prints('B:', __get_output_path())
-	assert __get_output_path() == "/home/goutte/Desktop/"
+	output_dir = "/home/oryx/code/godot/my_project"
+	prints('A:', __get_output_dir())
+	assert __get_output_dir() == "/home/oryx/code/godot/my_project/"
+	output_dir = ""
+	prints('B:', __get_output_dir())
+	assert __get_output_dir() == "/home/goutte/Desktop/"
 	# How to support these when running interactively? Besides more shell hacks?
-#	output_path = "res://data/graphics"
-#	prints('C:', __get_output_path())
-#	assert __get_output_path() == "???"
+#	output_dir = "res://data/graphics"
+#	prints('C:', __get_output_dir())
+#	assert __get_output_dir() == "???"
