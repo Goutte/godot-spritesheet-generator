@@ -1,0 +1,1 @@
+# See [the real README](https://github.com/Goutte/godot-spritesheet-generator/blob/master/addons/goutte.spritesheet.generator/README.md)

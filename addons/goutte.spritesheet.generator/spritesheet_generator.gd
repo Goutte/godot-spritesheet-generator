@@ -1,12 +1,14 @@
+tool
 extends Node
 
 # Generated files will be created in this directory. Leave empty for Desktop.
-export var output_path = "/home/goutte/code/godot/godotrio/"
+export(String, DIR, GLOBAL) var output_path = ""
 # Try not to put spaces or exotic characters in here. Please? It'll melt.
 export var file_prefix = "mY_pREciOUs"
-
-export var transparent_color_1 = Color(0, 0, 0)
-export var transparent_color_2 = Color(0, 0, 0)
+# We try different strategies for transparency
+export(Color, RGB) var transparent_color_1 = Color(0, 0, 0)
+# Useful for shadows, notably
+export(Color, RGB) var transparent_color_2 = Color(0, 0, 0)
 
 const DEFAULT_WINDOW_SIZE = 128
 const DEFAULT_RECORD_FRAMES = 12
