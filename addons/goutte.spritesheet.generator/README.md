@@ -63,6 +63,21 @@ You can also copy the files of this repository in your project.
 Then, enable the plugin in `Scene > Project Settings > Plugins`.
 
 
+Demo
+----
+
+There's a test scene in the `test` branch :
+
+```
+git clone https://github.com/Goutte/godot-spritesheet-generator.git gsg_test
+cd gsg_test
+git checkout test
+godot -e TestScene.tscn
+```
+
+Run the scene, and then look at your Desktop.
+
+
 Usage
 -----
 
