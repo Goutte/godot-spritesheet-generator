@@ -2,8 +2,12 @@
 
 echo -e "Opening the glue tube…"
 
-OUTPUT_DIR=$1
+## ARGUMENTS ##################################################################
+
+OUTPUT_DIR=$1       # absolute, with trailing path separator
 FILE_SLUG=$2
+
+# Color values from 0 to 255
 COLOR_R=$3
 COLOR_G=$4
 COLOR_B=$5
@@ -12,23 +16,51 @@ SHADOW_COLOR_G=$7
 SHADOW_COLOR_B=$8
 
 
+## OS DETECTION ###############################################################
+
+IS_WINDOWS=0
+
+case "$OSTYPE" in
+  solaris*)
+    echo -e "Solaris?! If you read this you are awesome, or mad, or both."
+    ;;
+  darwin*)
+    echo -e "You're on a computer of the brand Apple©? Tell us if it works!"
+    ;;
+  linux*)
+    echo -e "Hello, gaming penguin."
+    ;;
+  bsd*)
+    echo -e "BSD!? If you read this you are awesome."
+    ;;
+  msys*)
+    IS_WINDOWS=1
+    ;;
+  *)
+    echo -e "Wait. What's your OS? This: $OSTYPE ? Assuming NOT Windows."
+    ;;
+esac
+
+
+GIMP_BIN="gimp"
+MONTAGE_BIN="montage"
+CONVERT_BIN="convert"
+if [ ${IS_WINDOWS} -eq 1 ]
+then
+    MONTAGE_BIN="magick montage"
+    CONVERT_BIN="magick convert"
+fi
+
+
 ###############################################################################
 
 GIMP_COLOR="(${COLOR_R} ${COLOR_G} ${COLOR_B})"
 GIMP_SHADOW_COLOR="(${SHADOW_COLOR_R} ${SHADOW_COLOR_G} ${SHADOW_COLOR_B})"
 
-#echo -e "COLOR"
-#echo -e "${GIMP_COLOR}"
-#echo -e "${GIMP_SHADOW_COLOR}"
-
-#GIMP_COLOR="(0 0 0)"
-#GIMP_SHADOW_COLOR="(0 0 0)"
-
 RGB_COLOR="rgb(${COLOR_R},${COLOR_G},${COLOR_B}))"
 
 INPUT_FILES="${OUTPUT_DIR}${FILE_SLUG}_capture_*.png"
 
-echo ${INPUT_FILES}
 OUTPUT_FILE_NO_ALPHA="${OUTPUT_DIR}${FILE_SLUG}_spritesheet_noalpha.png"
 OUTPUT_FILE_1="${OUTPUT_DIR}${FILE_SLUG}_spritesheet_1.png"
 OUTPUT_FILE_2="${OUTPUT_DIR}${FILE_SLUG}_spritesheet_2.png"
@@ -38,7 +70,7 @@ OUTPUT_FILE_4="${OUTPUT_DIR}${FILE_SLUG}_spritesheet_4.png"
 
 ###############################################################################
 # 0. Create the sprite sheet image without alpha
-magick montage ${INPUT_FILES} \
+${MONTAGE_BIN} ${INPUT_FILES} \
         -tile x1 -geometry '1x1+0+0<' \
         -alpha On -background "rgba(0,0,0,0.0)" \
         -quality 100 \
@@ -47,7 +79,7 @@ magick montage ${INPUT_FILES} \
 
 ###############################################################################
 # 1. Using ImageMagick (usually poor results with partial transparency)
-magick convert ${OUTPUT_FILE_NO_ALPHA} \
+${CONVERT_BIN} ${OUTPUT_FILE_NO_ALPHA} \
         -transparent "${RGB_COLOR}" \
         -alpha On -background "rgba(0,0,0,0.0)" \
         -quality 100 \
@@ -62,13 +94,16 @@ COLOR2ALPHA_1="
         (image (car (file-png-load 1 \"${OUTPUT_FILE_NO_ALPHA}\" \"${OUTPUT_FILE_NO_ALPHA}\") ) )
         (drawable (car (gimp-image-active-drawable image) ) )
     )
-    ;(gimp-image-convert-rgb image)
+    (if (gimp-drawable-is-indexed drawable)
+        (gimp-image-convert-rgb image)
+        ()
+    )
     (plug-in-colortoalpha RUN-NONINTERACTIVE image drawable '${GIMP_COLOR} )
     (gimp-file-save RUN-NONINTERACTIVE image drawable \"${OUTPUT_FILE_2}\" \"${OUTPUT_FILE_2}\")
 )
 "
-echo -e "${COLOR2ALPHA_1}"
-gimp -i -b "${COLOR2ALPHA_1}" -b "(gimp-quit 0)"
+#echo -e "${COLOR2ALPHA_1}"
+${GIMP_BIN} -i -b "${COLOR2ALPHA_1}" -b "(gimp-quit 0)"
 
 
 ###############################################################################
@@ -80,7 +115,10 @@ COLOR2ALPHA_2="
         (drawable (car (gimp-image-active-drawable image)))
         ;(selection (car (gimp-image-get-selection image)))
     )
-    ;(gimp-image-convert-rgb image)
+    (if (gimp-drawable-is-indexed drawable)
+        (gimp-image-convert-rgb image)
+        ()
+    )
     (gimp-context-set-antialias FALSE)
     (gimp-context-set-feather TRUE)
     (gimp-context-set-feather-radius 1 1)
@@ -95,7 +133,7 @@ COLOR2ALPHA_2="
     (gimp-file-save RUN-NONINTERACTIVE image drawable \"${OUTPUT_FILE_3}\" \"${OUTPUT_FILE_3}\" )
 )
 "
-gimp -i -b "${COLOR2ALPHA_2}" -b "(gimp-quit 0)"
+${GIMP_BIN} -i -b "${COLOR2ALPHA_2}" -b "(gimp-quit 0)"
 
 
 ###############################################################################
@@ -107,7 +145,10 @@ COLOR2ALPHA_3="
         (drawable (car (gimp-image-active-drawable image)))
         ;(selection (car (gimp-image-get-selection image)))
     )
-    ;(gimp-image-convert-rgb image)
+    (if (gimp-drawable-is-indexed drawable)
+        (gimp-image-convert-rgb image)
+        ()
+    )
     (gimp-context-set-antialias FALSE)
     (gimp-context-set-feather TRUE)
     (gimp-context-set-feather-radius 2 2)
@@ -132,7 +173,7 @@ COLOR2ALPHA_3="
     (gimp-file-save RUN-NONINTERACTIVE image drawable \"${OUTPUT_FILE_4}\" \"${OUTPUT_FILE_4}\" )
 )
 "
-gimp -i -b "${COLOR2ALPHA_3}" -b "(gimp-quit 0)"
+${GIMP_BIN} -i -b "${COLOR2ALPHA_3}" -b "(gimp-quit 0)"
 
 ###############################################################################
 
