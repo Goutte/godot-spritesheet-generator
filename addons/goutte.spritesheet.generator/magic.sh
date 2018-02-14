@@ -70,10 +70,12 @@ OUTPUT_FILE_4="${OUTPUT_DIR}${FILE_SLUG}_spritesheet_4.png"
 
 ###############################################################################
 # 0. Create the sprite sheet image without alpha
+#    png:color-type ensures that the resulting image is RGB and never Indexed.
 ${MONTAGE_BIN} ${INPUT_FILES} \
         -tile x1 -geometry '1x1+0+0<' \
         -alpha On -background "rgba(0,0,0,0.0)" \
         -quality 100 \
+        -define png:color-type='2' \
         ${OUTPUT_FILE_NO_ALPHA}
 
 
@@ -94,10 +96,6 @@ COLOR2ALPHA_1="
         (image (car (file-png-load 1 \"${OUTPUT_FILE_NO_ALPHA}\" \"${OUTPUT_FILE_NO_ALPHA}\") ) )
         (drawable (car (gimp-image-active-drawable image) ) )
     )
-    (if (gimp-drawable-is-indexed drawable)
-        (gimp-image-convert-rgb image)
-        ()
-    )
     (plug-in-colortoalpha RUN-NONINTERACTIVE image drawable '${GIMP_COLOR} )
     (gimp-file-save RUN-NONINTERACTIVE image drawable \"${OUTPUT_FILE_2}\" \"${OUTPUT_FILE_2}\")
 )
@@ -114,10 +112,6 @@ COLOR2ALPHA_2="
         (image (car (file-png-load RUN-NONINTERACTIVE \"${OUTPUT_FILE_NO_ALPHA}\" \"${OUTPUT_FILE_NO_ALPHA}\") ) )
         (drawable (car (gimp-image-active-drawable image)))
         ;(selection (car (gimp-image-get-selection image)))
-    )
-    (if (gimp-drawable-is-indexed drawable)
-        (gimp-image-convert-rgb image)
-        ()
     )
     (gimp-context-set-antialias FALSE)
     (gimp-context-set-feather TRUE)
@@ -144,10 +138,6 @@ COLOR2ALPHA_3="
         (image (car (file-png-load RUN-NONINTERACTIVE \"${OUTPUT_FILE_NO_ALPHA}\" \"${OUTPUT_FILE_NO_ALPHA}\") ) )
         (drawable (car (gimp-image-active-drawable image)))
         ;(selection (car (gimp-image-get-selection image)))
-    )
-    (if (gimp-drawable-is-indexed drawable)
-        (gimp-image-convert-rgb image)
-        ()
     )
     (gimp-context-set-antialias FALSE)
     (gimp-context-set-feather TRUE)
