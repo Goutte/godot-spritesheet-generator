@@ -5,9 +5,9 @@ extends Node
 export(String, DIR, GLOBAL) var output_dir = ""
 # Try not to put spaces or exotic characters in here. Please? It'll melt.
 export var file_prefix = "mY_pREciOUs"
-# We try different strategies for transparency
+# We try different strategies for transparency.
 export(Color, RGB) var transparent_color_1 = Color(0, 0, 0)
-# Useful for shadows, notably
+# Useful for shadows, notably, so some strategies use two colors.
 export(Color, RGB) var transparent_color_2 = Color(0, 0, 0)
 
 const DEFAULT_WINDOW_SIZE = 128
