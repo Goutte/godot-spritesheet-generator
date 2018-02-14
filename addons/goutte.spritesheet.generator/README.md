@@ -23,10 +23,11 @@ Bloody edges are everywhere.
 How it works
 ------------
 
-This plugin captures screenshots of your scene at regular intervals,
-then runs a script that concatenates them together into a single long
-horizontal spritesheet, and then applies multiple GIMP schemes to try and get
-acceptable background transparency.
+1. Capture screenshots of your scene at regular intervals
+2. Concatenate them together into a single long horizontal spritesheet
+3. Apply multiple transparency schemes
+
+Steps 2 and 3 are ran by a bash script.
 
 The plugin generates multiple images, so you can choose which one renders best for your scene.
 
@@ -34,7 +35,7 @@ The plugin generates multiple images, so you can choose which one renders best f
 Dependencies
 ------------
 
-- **Linux**, because porting to Windows is still ongoing. See issue #1.
+- **Linux**, because porting to Windows is still ongoing. See [issue #1](https://github.com/Goutte/godot-spritesheet-generator/issues/1).
 - **ImageMagick** (we could probably do it all with GIMP, PRs welcome)
 - **GIMP**
 

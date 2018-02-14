@@ -76,6 +76,10 @@ func generate_spritesheet():
 		transparent_color_1.r8, transparent_color_1.g8, transparent_color_1.b8,
 		transparent_color_2.r8, transparent_color_2.g8, transparent_color_2.b8
 	]
+
+	# todo: when on windows, run something like dis :
+	# C:\Program Files\Git\bin>bash -c "/f/Godot\ Project\ 3.0/godot-spritesheet-generator-1.0/addons/goutte.spritesheet.generator/magic.sh "C:\\\\\\\\Users\\\\\\\\Adrenesis\\\\\\\\\Desktop\\\\\\\\" mY_pREciOUs 127 127 127 63 63 63"
+
 	pid = OS.execute('/bin/bash', options, is_blocking, output)
 	if (not output) or (not output[0].strip_edges()):
 		printerr(
