@@ -124,8 +124,14 @@ func _process(delta):
 
 ### PRIVATES ###################################################################
 
-func __get_path_separator():
-	return '/'  # sorry
+func __is_windows():
+	return OS.get_name() in ["Windows", "WinRT"]
+
+func __get_path_separator():  # OS.get_path_separator() or something
+	if __is_windows():
+		return '\\'
+	else:
+		return '/'
 
 func __get_output_dir():
 	var _output_dir = output_dir

@@ -24,8 +24,9 @@ How it works
 ------------
 
 This plugin captures screenshots of your scene at regular intervals,
-concatenates them together into a single long horizontal spritesheet,
-and then applies some GIMP schemes to try and get acceptable background transparncy.
+then runs a script that concatenates them together into a single long
+horizontal spritesheet, and then applies multiple GIMP schemes to try and get
+acceptable background transparency.
 
 The plugin generates multiple images, so you can choose which one renders best for your scene.
 
@@ -33,9 +34,24 @@ The plugin generates multiple images, so you can choose which one renders best f
 Dependencies
 ------------
 
-- Linux, because it was not tested on Windows, and we use BASH scripts.
-- ImageMagick (we could probably do it all with GIMP, PRs welcome)
-- GIMP
+- **Linux**, because porting to Windows is still ongoing. See issue #1.
+- **ImageMagick** (we could probably do it all with GIMP, PRs welcome)
+- **GIMP**
+
+### Ubuntu Flavors
+
+```
+apt install gimp imagemagick
+```
+
+### Windows
+
+Looks a bit tricky.
+[Chocolatey](https://chocolatey.org/install) goes a long way.
+
+```
+choco install gimp imagemagick
+```
 
 
 Install
@@ -44,7 +60,7 @@ Install
 The installation is as usual, you can do it from the assets lib.
 You can also copy the files of this repository in your project.
 
-Then, enable the plugin in `Scene > Project Settins > Plugins`.
+Then, enable the plugin in `Scene > Project Settings > Plugins`.
 
 
 Usage
@@ -67,6 +83,7 @@ func _ready():
 	sg.record_for_a_while()
 ```
 
+Overall, the flow goes like this:
 
 - Make your 3D scene
 - Cook up an animation
@@ -85,18 +102,25 @@ you should set your window size to a small value.
 Caveats
 -------
 
-You *will* have bugs, run into incomplete features, and find this unusable.
-Tweaking the shell script goes a long way into improving results.
+You *will* encounter bugs, run into incomplete features, and find this unusable.
+Tweaking the gimp scripts goes a long way into improving results.
 Share them so we can make better presets!
 
-No mask support yet, which would be the ideal solution for transparency.
+- No mask support yet, which would be the ideal solution for transparency.
+- Recording is delayed by two frames before actually starting.
+
+
+Pitfalls
+--------
+
+- Spaces in the output directory path. Not tested, not expected to work.
 
 
 Thanks
 ------
 
-- Adrenesis
-- Sileo
+- Adrenesis for porting this hell to Windows
+- Sileo for his insights into gimp plumbings
 - Inspiration: https://github.com/Maujoe/godot-simlpe-screenshot-script
 
 
