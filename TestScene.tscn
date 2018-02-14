@@ -78,7 +78,7 @@ __meta__ = {
 "_editor_icon": ExtResource( 3 )
 }
 output_dir = ""
-file_prefix = "ADRE"
+file_prefix = "blue_cube"
 transparent_color_1 = Color( 0, 0, 0, 1 )
 transparent_color_2 = Color( 0, 0, 0, 1 )
 
