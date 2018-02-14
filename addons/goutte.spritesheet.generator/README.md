@@ -54,6 +54,8 @@ Looks a bit tricky.
 choco install gimp imagemagick
 ```
 
+Install Git's bash CLI, we're using `C:\Program Files\Git\bin\bash`.
+
 
 Install
 -------
