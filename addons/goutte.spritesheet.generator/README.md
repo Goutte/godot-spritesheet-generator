@@ -28,6 +28,7 @@ How it works
 3. Apply multiple transparency schemes
 
 Steps 2 and 3 are ran by a bash script.
+If you figure out how to do this without bash, don't keep it for yourself!
 
 The plugin generates multiple images, so you can choose which one renders best for your scene.
 
@@ -69,7 +70,7 @@ Then, enable the plugin in `Scene > Project Settings > Plugins`.
 Demo
 ----
 
-There's a test scene in the `test` branch :
+There's a minimal test scene in the `test` branch :
 
 ```
 git clone https://github.com/Goutte/godot-spritesheet-generator.git gsg_test
@@ -92,9 +93,9 @@ Then, call it from somewhere, like so :
 onready var sg = $SpritesheetGenerator
 
 func _ready():
-    var duration_in_seconds = 3.0
-    var frames_to_record = 12
-    var window_size = Vector2(128,128)
+	var duration_in_seconds = 3.0
+	var frames_to_record = 12
+	var window_size = Vector2(128,128)
 	sg.record_for_a_while(duration_in_seconds, frames_to_record, window_size)
 
 	# or simply
@@ -139,9 +140,8 @@ Thanks
 
 - Adrenesis for porting this hell to Windows
 - Sileo for his insights into gimp plumbings
+- Miu for the mind poutine, ostie de plotte
 - Inspiration: https://github.com/Maujoe/godot-simlpe-screenshot-script
 
 
 Feedback and contributions are welcome!
-
-
