@@ -2,6 +2,7 @@
 
 echo -e "Opening the glue tube…"
 
+
 ## ARGUMENTS ##################################################################
 
 OUTPUT_DIR=$1       # absolute, with trailing path separator
@@ -66,14 +67,21 @@ OUTPUT_FILE_1="${OUTPUT_DIR}${FILE_SLUG}_spritesheet_1.png"
 OUTPUT_FILE_2="${OUTPUT_DIR}${FILE_SLUG}_spritesheet_2.png"
 OUTPUT_FILE_3="${OUTPUT_DIR}${FILE_SLUG}_spritesheet_3.png"
 OUTPUT_FILE_4="${OUTPUT_DIR}${FILE_SLUG}_spritesheet_4.png"
+OUTPUT_FILE_5="${OUTPUT_DIR}${FILE_SLUG}_spritesheet_5.png"
 
 OUTPUT_LOG="${OUTPUT_DIR}${FILE_SLUG}.log"
+# Even on success, log may be filled with internal GIMP errors such as
+# GEGL-gegl-operation.c-WARNING **: Cannot change name of operation class
+# Just ignore them, to find meaningful errors.
 
+###############################################################################
 
+#echo -e "Make me a function" >>${OUTPUT_LOG} 2>&1
 
 ###############################################################################
 # 0. Create the sprite sheet image without alpha
 #    png:color-type ensures that the resulting image is RGB and never Indexed.
+echo -e "MONTAGE…" >>${OUTPUT_LOG} 2>&1
 ${MONTAGE_BIN} ${INPUT_FILES} \
         -tile x1 -geometry '1x1+0+0<' \
         -alpha On -background "rgba(0,0,0,0.0)" \
@@ -84,6 +92,7 @@ ${MONTAGE_BIN} ${INPUT_FILES} \
 
 ###############################################################################
 # 1. Using ImageMagick (usually poor results with partial transparency)
+echo -e "METHOD 1…" >>${OUTPUT_LOG} 2>&1
 ${CONVERT_BIN} ${OUTPUT_FILE_NO_ALPHA} \
         -transparent "${RGB_COLOR}" \
         -alpha On -background "rgba(0,0,0,0.0)" \
@@ -93,23 +102,49 @@ ${CONVERT_BIN} ${OUTPUT_FILE_NO_ALPHA} \
 
 ###############################################################################
 # 2. Using GIMP, unadulterated colortoalpha (makes everything semi-transparent)
-COLOR2ALPHA_1="
+echo -e "METHOD 2…" >>${OUTPUT_LOG} 2>&1
+SCHEME_2="
 (let*
     (
-        (image (car (file-png-load 1 \"${OUTPUT_FILE_NO_ALPHA}\" \"${OUTPUT_FILE_NO_ALPHA}\") ) )
+        (image (car (file-png-load RUN-NONINTERACTIVE \"${OUTPUT_FILE_NO_ALPHA}\" \"${OUTPUT_FILE_NO_ALPHA}\") ) )
         (drawable (car (gimp-image-active-drawable image) ) )
     )
     (plug-in-colortoalpha RUN-NONINTERACTIVE image drawable '${GIMP_COLOR} )
     (gimp-file-save RUN-NONINTERACTIVE image drawable \"${OUTPUT_FILE_2}\" \"${OUTPUT_FILE_2}\")
 )
 "
-#echo -e "${COLOR2ALPHA_1}"
-${GIMP_BIN} -i -b "${COLOR2ALPHA_1}" -b "(gimp-quit 0)" >>${OUTPUT_LOG} 2>&1
+${GIMP_BIN} -i -b "${SCHEME_2}" -b "(gimp-quit 0)" >>${OUTPUT_LOG} 2>&1
 
 
 ###############################################################################
-# 3. Using GIMP, colortoalpha on selection by color, with feather and grow
-COLOR2ALPHA_2="
+# 3. Using GIMP, colortoalpha on selection of 1st color, with feather and grow
+echo -e "METHOD 3…" >>${OUTPUT_LOG} 2>&1
+SCHEME_3="
+(let*
+    (
+        (image (car (file-png-load RUN-NONINTERACTIVE \"${OUTPUT_FILE_NO_ALPHA}\" \"${OUTPUT_FILE_NO_ALPHA}\") ) )
+        (drawable (car (gimp-image-active-drawable image)))
+    )
+    (gimp-context-set-antialias FALSE)
+    (gimp-context-set-feather TRUE)
+    (gimp-context-set-feather-radius 1 1)
+    (gimp-context-set-sample-criterion SELECT-CRITERION-COMPOSITE)
+    (gimp-context-set-sample-threshold-int 2)
+    (gimp-image-select-color image CHANNEL-OP-REPLACE drawable '${GIMP_COLOR})
+    (gimp-selection-grow image 1)
+    (gimp-selection-sharpen image)
+
+    (plug-in-colortoalpha RUN-NONINTERACTIVE image drawable '${GIMP_COLOR})
+    (gimp-file-save RUN-NONINTERACTIVE image drawable \"${OUTPUT_FILE_3}\" \"${OUTPUT_FILE_3}\" )
+)
+"
+${GIMP_BIN} -i -b "${SCHEME_3}" -b "(gimp-quit 0)" >>${OUTPUT_LOG} 2>&1
+
+
+###############################################################################
+# 4. Using GIMP, colortoalpha on selections of both colors, with feather & grow
+echo -e "METHOD 4…" >>${OUTPUT_LOG} 2>&1
+SCHEME_4="
 (let*
     (
         (image (car (file-png-load RUN-NONINTERACTIVE \"${OUTPUT_FILE_NO_ALPHA}\" \"${OUTPUT_FILE_NO_ALPHA}\") ) )
@@ -118,24 +153,24 @@ COLOR2ALPHA_2="
     )
     (gimp-context-set-antialias FALSE)
     (gimp-context-set-feather TRUE)
-    (gimp-context-set-feather-radius 1 1)
+    (gimp-context-set-feather-radius 2 2)
     (gimp-context-set-sample-criterion SELECT-CRITERION-COMPOSITE)
     (gimp-context-set-sample-threshold-int 2)
     (gimp-image-select-color image CHANNEL-OP-REPLACE drawable '${GIMP_COLOR})
     (gimp-image-select-color image CHANNEL-OP-ADD drawable '${GIMP_SHADOW_COLOR})
     (gimp-selection-grow image 1)
 
-    ; colortoalpha will only be applied to the selection
     (plug-in-colortoalpha RUN-NONINTERACTIVE image drawable '${GIMP_COLOR})
-    (gimp-file-save RUN-NONINTERACTIVE image drawable \"${OUTPUT_FILE_3}\" \"${OUTPUT_FILE_3}\" )
+    (gimp-file-save RUN-NONINTERACTIVE image drawable \"${OUTPUT_FILE_4}\" \"${OUTPUT_FILE_4}\" )
 )
 "
-${GIMP_BIN} -i -b "${COLOR2ALPHA_2}" -b "(gimp-quit 0)" >>${OUTPUT_LOG} 2>&1
+${GIMP_BIN} -i -b "${SCHEME_4}" -b "(gimp-quit 0)" >>${OUTPUT_LOG} 2>&1
 
 
 ###############################################################################
-# 4. Same as 3. plus sharpen
-COLOR2ALPHA_3="
+# 5. Same as 4. plus sharpen
+echo -e "METHOD 5…" >>${OUTPUT_LOG} 2>&1
+SCHEME_5="
 (let*
     (
         (image (car (file-png-load RUN-NONINTERACTIVE \"${OUTPUT_FILE_NO_ALPHA}\" \"${OUTPUT_FILE_NO_ALPHA}\") ) )
@@ -163,12 +198,12 @@ COLOR2ALPHA_3="
 
     ; colortoalpha will only be applied to the selection
     (plug-in-colortoalpha RUN-NONINTERACTIVE image drawable '${GIMP_COLOR})
-    (gimp-file-save RUN-NONINTERACTIVE image drawable \"${OUTPUT_FILE_4}\" \"${OUTPUT_FILE_4}\" )
+    (gimp-file-save RUN-NONINTERACTIVE image drawable \"${OUTPUT_FILE_5}\" \"${OUTPUT_FILE_5}\" )
 )
 "
-${GIMP_BIN} -i -b "${COLOR2ALPHA_3}" -b "(gimp-quit 0)" >>${OUTPUT_LOG} 2>&1
+${GIMP_BIN} -i -b "${SCHEME_5}" -b "(gimp-quit 0)" >>${OUTPUT_LOG} 2>&1
 
 ###############################################################################
 
 echo -e "Scraping glue from fingers…"
-echo -e "Look in ${OUTPUT_DIR} for your sprites."
+echo -e "Look in '${OUTPUT_DIR}' for your sprites."
