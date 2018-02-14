@@ -67,6 +67,9 @@ OUTPUT_FILE_2="${OUTPUT_DIR}${FILE_SLUG}_spritesheet_2.png"
 OUTPUT_FILE_3="${OUTPUT_DIR}${FILE_SLUG}_spritesheet_3.png"
 OUTPUT_FILE_4="${OUTPUT_DIR}${FILE_SLUG}_spritesheet_4.png"
 
+OUTPUT_LOG="${OUTPUT_DIR}${FILE_SLUG}.log"
+
+
 
 ###############################################################################
 # 0. Create the sprite sheet image without alpha
@@ -101,7 +104,7 @@ COLOR2ALPHA_1="
 )
 "
 #echo -e "${COLOR2ALPHA_1}"
-${GIMP_BIN} -i -b "${COLOR2ALPHA_1}" -b "(gimp-quit 0)"
+${GIMP_BIN} -i -b "${COLOR2ALPHA_1}" -b "(gimp-quit 0)" >>${OUTPUT_LOG} 2>&1
 
 
 ###############################################################################
@@ -127,7 +130,7 @@ COLOR2ALPHA_2="
     (gimp-file-save RUN-NONINTERACTIVE image drawable \"${OUTPUT_FILE_3}\" \"${OUTPUT_FILE_3}\" )
 )
 "
-${GIMP_BIN} -i -b "${COLOR2ALPHA_2}" -b "(gimp-quit 0)"
+${GIMP_BIN} -i -b "${COLOR2ALPHA_2}" -b "(gimp-quit 0)" >>${OUTPUT_LOG} 2>&1
 
 
 ###############################################################################
@@ -163,7 +166,7 @@ COLOR2ALPHA_3="
     (gimp-file-save RUN-NONINTERACTIVE image drawable \"${OUTPUT_FILE_4}\" \"${OUTPUT_FILE_4}\" )
 )
 "
-${GIMP_BIN} -i -b "${COLOR2ALPHA_3}" -b "(gimp-quit 0)"
+${GIMP_BIN} -i -b "${COLOR2ALPHA_3}" -b "(gimp-quit 0)" >>${OUTPUT_LOG} 2>&1
 
 ###############################################################################
 
