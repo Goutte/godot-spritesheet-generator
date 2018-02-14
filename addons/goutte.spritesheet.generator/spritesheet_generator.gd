@@ -79,8 +79,22 @@ func generate_spritesheet():
 
 	# todo: when on windows, run something like dis :
 	# C:\Program Files\Git\bin>bash -c "/f/Godot\ Project\ 3.0/godot-spritesheet-generator-1.0/addons/goutte.spritesheet.generator/magic.sh "C:\\\\\\\\Users\\\\\\\\Adrenesis\\\\\\\\\Desktop\\\\\\\\" mY_pREciOUs 127 127 127 63 63 63"
-
-	pid = OS.execute('/bin/bash', options, is_blocking, output)
+	if __is_windows():
+		var option_string = join(options, " ")
+		var space = " "
+		var quote = ""
+		var minus_c = "-c"
+		options = [
+		quote+file, String(quote)+__get_output_dir()+quote, file_prefix,
+		transparent_color_1.r8, transparent_color_1.g8, transparent_color_1.b8,
+		transparent_color_2.r8, transparent_color_2.g8, transparent_color_2.b8,
+		quote
+		]
+		var options_string = join(options, space)
+		options = [ minus_c, option_string ]
+		pid = OS.execute("C:\\Program Files\\Git\\bin\\bash", options, is_blocking, output)
+	else:
+		pid = OS.execute('/bin/bash', options, is_blocking, output)
 	if (not output) or (not output[0].strip_edges()):
 		printerr(
 			"ERROR: Failed to execute the bash script '%s'.\n"%file +
@@ -158,12 +172,12 @@ func __get_output_dir():
 #	prints("ExPath", executable_path)
 #	var system_dir = OS.get_system_dir(OS.SYSTEM_DIR_PROJECT)
 #	prints("SysDir", system_dir)
-	
 	var path_sep = __get_path_separator()
 	if _output_dir[-1] != path_sep:
 		_output_dir += path_sep
+	if __is_windows():
+		_output_dir = _output_dir.replace("\\", "\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\")
 	return _output_dir
-
 
 ### TOOLSHED ###################################################################
 
