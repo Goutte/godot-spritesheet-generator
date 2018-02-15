@@ -99,6 +99,12 @@ ${CONVERT_BIN} ${OUTPUT_FILE_NO_ALPHA} \
         -quality 100 \
         ${OUTPUT_FILE_1}
 
+# ... and make a GIF as well
+${CONVERT_BIN} ${OUTPUT_FILE_1} \
+        -crop 128x128 +repage -set dispose background \
+        -loop 0 -set delay 6 \
+        ${OUTPUT_DIR}${FILE_SLUG}.gif
+
 
 ###############################################################################
 # 2. Using GIMP, unadulterated colortoalpha (makes everything semi-transparent)
