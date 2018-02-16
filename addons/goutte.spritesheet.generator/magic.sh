@@ -63,11 +63,12 @@ RGB_COLOR="rgb(${COLOR_R},${COLOR_G},${COLOR_B})"
 INPUT_FILES="${OUTPUT_DIR}${FILE_SLUG}_capture_*.png"
 
 OUTPUT_FILE_NO_ALPHA="${OUTPUT_DIR}${FILE_SLUG}_spritesheet_noalpha.png"
-OUTPUT_FILE_1="${OUTPUT_DIR}${FILE_SLUG}_spritesheet_1.png"
-OUTPUT_FILE_2="${OUTPUT_DIR}${FILE_SLUG}_spritesheet_2.png"
-OUTPUT_FILE_3="${OUTPUT_DIR}${FILE_SLUG}_spritesheet_3.png"
-OUTPUT_FILE_4="${OUTPUT_DIR}${FILE_SLUG}_spritesheet_4.png"
-OUTPUT_FILE_5="${OUTPUT_DIR}${FILE_SLUG}_spritesheet_5.png"
+OUTPUT_FILE_01="${OUTPUT_DIR}${FILE_SLUG}_spritesheet_01.png"
+OUTPUT_FILE_02="${OUTPUT_DIR}${FILE_SLUG}_spritesheet_02.png"
+OUTPUT_FILE_03="${OUTPUT_DIR}${FILE_SLUG}_spritesheet_03.png"
+OUTPUT_FILE_04="${OUTPUT_DIR}${FILE_SLUG}_spritesheet_04.png"
+OUTPUT_FILE_05="${OUTPUT_DIR}${FILE_SLUG}_spritesheet_05.png"
+OUTPUT_FILE_06="${OUTPUT_DIR}${FILE_SLUG}_spritesheet_06.png"
 
 OUTPUT_LOG="${OUTPUT_DIR}${FILE_SLUG}.log"
 # Even on success, this log may be filled with internal GIMP errors such as
@@ -91,41 +92,63 @@ ${MONTAGE_BIN} ${INPUT_FILES} \
 
 
 ###############################################################################
-# 1. Using ImageMagick (usually poor results with partial transparency)
-echo -e "METHOD 1…" >>${OUTPUT_LOG} 2>&1
+# 01. Using ImageMagick (usually poor results with partial transparency)
+echo -e "METHOD 01…" >>${OUTPUT_LOG} 2>&1
 ${CONVERT_BIN} ${OUTPUT_FILE_NO_ALPHA} \
         -transparent "${RGB_COLOR}" \
         -alpha On -background "rgba(0,0,0,0.0)" \
         -quality 100 \
-        ${OUTPUT_FILE_1}
+        ${OUTPUT_FILE_01}
 
 # ... and make a GIF as well
-${CONVERT_BIN} ${OUTPUT_FILE_1} \
+${CONVERT_BIN} ${OUTPUT_FILE_01} \
         -crop 128x128 +repage -set dispose background \
         -loop 0 -set delay 6 \
         ${OUTPUT_DIR}${FILE_SLUG}.gif
 
 
 ###############################################################################
-# 2. Using GIMP, unadulterated colortoalpha (makes everything semi-transparent)
-echo -e "METHOD 2…" >>${OUTPUT_LOG} 2>&1
-SCHEME_2="
+# 02. Using GIMP, unadulterated colortoalpha (makes everything semi-transparent)
+echo -e "METHOD 02…" >>${OUTPUT_LOG} 2>&1
+SCHEME_02="
 (let*
     (
         (image (car (file-png-load RUN-NONINTERACTIVE \"${OUTPUT_FILE_NO_ALPHA}\" \"${OUTPUT_FILE_NO_ALPHA}\") ) )
         (drawable (car (gimp-image-active-drawable image) ) )
     )
     (plug-in-colortoalpha RUN-NONINTERACTIVE image drawable '${GIMP_COLOR} )
-    (gimp-file-save RUN-NONINTERACTIVE image drawable \"${OUTPUT_FILE_2}\" \"${OUTPUT_FILE_2}\")
+    (gimp-file-save RUN-NONINTERACTIVE image drawable \"${OUTPUT_FILE_02}\" \"${OUTPUT_FILE_02}\")
 )
 "
-${GIMP_BIN} -i -b "${SCHEME_2}" -b "(gimp-quit 0)" >>${OUTPUT_LOG} 2>&1
-
+${GIMP_BIN} -i -b "${SCHEME_02}" -b "(gimp-quit 0)" >>${OUTPUT_LOG} 2>&1
 
 ###############################################################################
-# 3. Using GIMP, colortoalpha on selection of 1st color, with feather and grow
-echo -e "METHOD 3…" >>${OUTPUT_LOG} 2>&1
-SCHEME_3="
+# 03. Using GIMP, colortoalpha on selection of 1st color
+echo -e "METHOD 03…" >>${OUTPUT_LOG} 2>&1
+SCHEME_03="
+(let*
+    (
+        (image (car (file-png-load RUN-NONINTERACTIVE \"${OUTPUT_FILE_NO_ALPHA}\" \"${OUTPUT_FILE_NO_ALPHA}\") ) )
+        (drawable (car (gimp-image-active-drawable image)))
+    )
+    (gimp-context-set-antialias FALSE)
+    (gimp-context-set-feather FALSE)
+    (gimp-context-set-sample-criterion SELECT-CRITERION-COMPOSITE)
+    (gimp-context-set-sample-threshold-int 2)
+    (gimp-image-select-color image CHANNEL-OP-REPLACE drawable '${GIMP_COLOR})
+    ;(gimp-selection-grow image 1)
+    (gimp-selection-sharpen image)
+
+    (plug-in-colortoalpha RUN-NONINTERACTIVE image drawable '${GIMP_COLOR})
+    (gimp-file-save RUN-NONINTERACTIVE image drawable \"${OUTPUT_FILE_03}\" \"${OUTPUT_FILE_03}\" )
+)
+"
+${GIMP_BIN} -i -b "${SCHEME_03}" -b "(gimp-quit 0)" >>${OUTPUT_LOG} 2>&1
+
+###############################################################################
+# 04. Using GIMP, colortoalpha on selection of 1st color, with feather and grow
+echo -e "METHOD 04…" >>${OUTPUT_LOG} 2>&1
+SCHEME_04="
 (let*
     (
         (image (car (file-png-load RUN-NONINTERACTIVE \"${OUTPUT_FILE_NO_ALPHA}\" \"${OUTPUT_FILE_NO_ALPHA}\") ) )
@@ -141,16 +164,16 @@ SCHEME_3="
     (gimp-selection-sharpen image)
 
     (plug-in-colortoalpha RUN-NONINTERACTIVE image drawable '${GIMP_COLOR})
-    (gimp-file-save RUN-NONINTERACTIVE image drawable \"${OUTPUT_FILE_3}\" \"${OUTPUT_FILE_3}\" )
+    (gimp-file-save RUN-NONINTERACTIVE image drawable \"${OUTPUT_FILE_04}\" \"${OUTPUT_FILE_04}\" )
 )
 "
-${GIMP_BIN} -i -b "${SCHEME_3}" -b "(gimp-quit 0)" >>${OUTPUT_LOG} 2>&1
+${GIMP_BIN} -i -b "${SCHEME_04}" -b "(gimp-quit 0)" >>${OUTPUT_LOG} 2>&1
 
 
 ###############################################################################
-# 4. Using GIMP, colortoalpha on selections of both colors, with feather & grow
-echo -e "METHOD 4…" >>${OUTPUT_LOG} 2>&1
-SCHEME_4="
+# 05. Using GIMP, colortoalpha on selections of both colors, with feather & grow
+echo -e "METHOD 05…" >>${OUTPUT_LOG} 2>&1
+SCHEME_05="
 (let*
     (
         (image (car (file-png-load RUN-NONINTERACTIVE \"${OUTPUT_FILE_NO_ALPHA}\" \"${OUTPUT_FILE_NO_ALPHA}\") ) )
@@ -167,16 +190,16 @@ SCHEME_4="
     (gimp-selection-grow image 1)
 
     (plug-in-colortoalpha RUN-NONINTERACTIVE image drawable '${GIMP_COLOR})
-    (gimp-file-save RUN-NONINTERACTIVE image drawable \"${OUTPUT_FILE_4}\" \"${OUTPUT_FILE_4}\" )
+    (gimp-file-save RUN-NONINTERACTIVE image drawable \"${OUTPUT_FILE_05}\" \"${OUTPUT_FILE_05}\" )
 )
 "
-${GIMP_BIN} -i -b "${SCHEME_4}" -b "(gimp-quit 0)" >>${OUTPUT_LOG} 2>&1
+${GIMP_BIN} -i -b "${SCHEME_05}" -b "(gimp-quit 0)" >>${OUTPUT_LOG} 2>&1
 
 
 ###############################################################################
-# 5. Same as 4. plus sharpen
-echo -e "METHOD 5…" >>${OUTPUT_LOG} 2>&1
-SCHEME_5="
+# 06. Same as 4. plus sharpen
+echo -e "METHOD 06…" >>${OUTPUT_LOG} 2>&1
+SCHEME_06="
 (let*
     (
         (image (car (file-png-load RUN-NONINTERACTIVE \"${OUTPUT_FILE_NO_ALPHA}\" \"${OUTPUT_FILE_NO_ALPHA}\") ) )
@@ -204,10 +227,10 @@ SCHEME_5="
 
     ; colortoalpha will only be applied to the selection
     (plug-in-colortoalpha RUN-NONINTERACTIVE image drawable '${GIMP_COLOR})
-    (gimp-file-save RUN-NONINTERACTIVE image drawable \"${OUTPUT_FILE_5}\" \"${OUTPUT_FILE_5}\" )
+    (gimp-file-save RUN-NONINTERACTIVE image drawable \"${OUTPUT_FILE_06}\" \"${OUTPUT_FILE_06}\" )
 )
 "
-${GIMP_BIN} -i -b "${SCHEME_5}" -b "(gimp-quit 0)" >>${OUTPUT_LOG} 2>&1
+${GIMP_BIN} -i -b "${SCHEME_06}" -b "(gimp-quit 0)" >>${OUTPUT_LOG} 2>&1
 
 ###############################################################################
 
