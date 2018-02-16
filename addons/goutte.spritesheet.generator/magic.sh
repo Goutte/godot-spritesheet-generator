@@ -58,7 +58,7 @@ fi
 GIMP_COLOR="(${COLOR_R} ${COLOR_G} ${COLOR_B})"
 GIMP_SHADOW_COLOR="(${SHADOW_COLOR_R} ${SHADOW_COLOR_G} ${SHADOW_COLOR_B})"
 
-RGB_COLOR="rgb(${COLOR_R},${COLOR_G},${COLOR_B}))"
+RGB_COLOR="rgb(${COLOR_R},${COLOR_G},${COLOR_B})"
 
 INPUT_FILES="${OUTPUT_DIR}${FILE_SLUG}_capture_*.png"
 
@@ -70,7 +70,7 @@ OUTPUT_FILE_4="${OUTPUT_DIR}${FILE_SLUG}_spritesheet_4.png"
 OUTPUT_FILE_5="${OUTPUT_DIR}${FILE_SLUG}_spritesheet_5.png"
 
 OUTPUT_LOG="${OUTPUT_DIR}${FILE_SLUG}.log"
-# Even on success, log may be filled with internal GIMP errors such as
+# Even on success, this log may be filled with internal GIMP errors such as
 # GEGL-gegl-operation.c-WARNING **: Cannot change name of operation class
 # Just ignore them, to find meaningful errors.
 
